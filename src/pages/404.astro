@@ -1,0 +1,14 @@
+---
+import Hero from '../components/Hero.astro';
+import Layout from '../layouts/Layout.astro';
+
+const title = 'お探しのページは見つかりませんでした';
+---
+
+<Layout is404 title={title}>
+  <Hero title={title} />
+
+  <main class="wrapper">
+    <p>すでに削除されているか、URLが間違っています。</p>
+  </main>
+</Layout>

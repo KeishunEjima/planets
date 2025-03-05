@@ -1,0 +1,130 @@
+---
+import { Icon } from 'astro-icon/components';
+import appleTouchIconImage from '../assets/apple-touch-icon.png';
+import faviconImage from '../assets/favicon.svg';
+import defaultOpenGraphImage from '../assets/opengraph-image.png';
+import { siteLang, siteRegion, siteTitle, siteTwitterId } from '../consts';
+import '../styles/global.css';
+
+interface BaseProps {
+  isHome?: false | undefined;
+  is404?: false | undefined;
+  title: string;
+  description?: string | undefined;
+  ogType?: 'website' | 'article' | undefined;
+  ogImage?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface GeneralProps extends BaseProps {}
+
+interface HomeProps extends Omit<BaseProps, 'isHome' | 'title'> {
+  isHome: true;
+  tagline: string;
+}
+
+interface NotFoundProps extends Omit<BaseProps, 'is404'> {
+  is404: true;
+}
+
+type Props = GeneralProps | HomeProps | NotFoundProps;
+
+const isHome = Astro.props.isHome === true;
+const is404 = Astro.props.is404 === true;
+
+const { description, ogType = 'website', ogImage = defaultOpenGraphImage.src } = Astro.props;
+
+const resolvedOgImage = new URL(ogImage, Astro.url);
+---
+
+<!--
+  https://bugs.chromium.org/p/chromium/issues/detail?id=1378462
+  https://schepp.dev/posts/smooth-scrolling-and-page-search/
+-->
+<html
+  class:list={[
+    'bg-white [overflow-wrap:anywhere] text-slate-800 kerning-none [line-break:normal] [text-underline-position:from-font]',
+    'motion-safe:focus-within:scroll-smooth',
+  ]}
+  lang={siteLang}
+>
+  <head>
+    {
+      /**
+       * sort the order of elements in the `<head>` to improve performance
+       * https://speakerdeck.com/csswizardry/get-your-head-straight?slide=39
+       */
+    }
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <title
+      set:html={[!isHome && Astro.props.title, siteTitle, isHome && Astro.props.tagline]
+        .filter(Boolean)
+        .join(' &#8211; ')}
+    />
+
+    <script src="../scripts/main.ts"></script>
+
+    {description && <meta name="description" content={description} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={`@${siteTwitterId}`} />
+    <meta name="twitter:title" content={isHome ? siteTitle : Astro.props.title} />
+
+    <meta property="og:title" content={isHome ? Astro.props.tagline : Astro.props.title} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:image" content={resolvedOgImage} />
+    {!is404 && <meta property="og:url" content={Astro.url} />}
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:site_name" content={siteTitle} />
+    <meta property="og:locale" content={`${siteLang}_${siteRegion}`} />
+
+    <link rel="apple-touch-icon" href={appleTouchIconImage.src} />
+    {!is404 && <link rel="canonical" href={Astro.url} />}
+    <link rel="icon" href={faviconImage.src} type="image/svg+xml" />
+  </head>
+
+  <body class="min-h-svh">
+    {
+      /**
+       * use `100svh` instead of `100dvh`
+       * https://piccalil.li/blog/a-more-modern-css-reset/#:~:text=I%20like%20a,to%20change%20it!
+       */
+    }
+
+    <nav
+      class="sticky top-0 z-10 bg-[#111111] text-[length:--fluid(0.875rem,1rem,24rem,var(--breakpoint-sm))] font-bold text-white"
+    >
+      <ul
+        class="wrapper flex max-w-none items-center gap-x-[--fluid(1rem,1.5rem,24rem,var(--breakpoint-sm))]"
+      >
+        <li class="mr-auto">
+          {/* eslint-disable-next-line astro/jsx-a11y/anchor-is-valid */}
+          <a class="block py-4" href={isHome ? null : '/'}>
+            <Icon name="logo" class="h-5 w-auto" role="img" aria-label={siteTitle} />
+          </a>
+        </li>
+        <li>
+          <a class="block py-2" href="/blog/">ブログ</a>
+        </li>
+        <li>
+          <a class="block py-2" href="https://github.com/yuheiy/sdenv" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a class="block py-2" href={`https://x.com/${siteTwitterId}`} target="_blank">X</a>
+        </li>
+      </ul>
+    </nav>
+
+    <slot />
+
+    {/* https://css-tricks.com/a-clever-sticky-footer-technique/ */}
+    <footer class="sticky top-full mt-[--fluid(3rem,5rem)] bg-slate-100 py-4 text-center text-sm">
+      <p class="wrapper">© <span x-data x-text="new Date().getFullYear()"></span> Yuhei Yasuda</p>
+    </footer>
+
+    {/* https://atfzl.com/don-t-attach-tooltips-to-document-body */}
+    <div id="js-overlay-container"></div>
+  </body>
+</html>

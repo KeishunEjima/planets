@@ -1,0 +1,79 @@
+---
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import { siteTitle } from '../consts';
+import Layout from '../layouts/Layout.astro';
+
+const tagline = 'ウェブサイトのためのフロントエンド開発スターターキット';
+const description =
+  'sdenv（読み方: えすでぃーえんぶ）は、ウェブサイト（not ウェブアプリケーション）のためのフロントエンド開発スターターキットです。モダンなプラクティスを取り入れながらも、より多くのウェブサイト開発者に向けたHTML中心の開発環境を構成しています。';
+
+const developmentStacks = [
+  {
+    image: {
+      src: import('../assets/home/logo-astro.svg'),
+      alt: 'Astro',
+    },
+    link: 'https://astro.build/',
+    label: 'Webサイトフレームワーク',
+  },
+  {
+    image: {
+      src: import('../assets/home/logo-tailwindcss.svg'),
+      alt: 'Tailwind CSS',
+    },
+    link: 'https://tailwindcss.com/',
+    label: 'CSSフレームワーク',
+  },
+  {
+    image: {
+      src: import('../assets/home/logo-alpinejs.svg'),
+      alt: 'Alpine.js',
+    },
+    link: 'https://alpinejs.dev/',
+    label: 'JavaScriptフレームワーク',
+  },
+];
+---
+
+<Layout isHome tagline={tagline} description={description}>
+  <header class="wrapper py-[--fluid(4rem,10rem)]">
+    <h1>
+      <Icon
+        name="logo"
+        class="mx-auto h-[--fluid(2.5rem,6rem)] w-auto text-[#111111]"
+        role="img"
+        aria-label={siteTitle}
+      />
+    </h1>
+    <p
+      class="mt-[--fluid(1.25rem,2.5rem)] text-center text-[length:--fluid(1rem,1.5rem)] font-bold text-pretty [word-break:auto-phrase] kerning-all"
+    >
+      {tagline}
+    </p>
+  </header>
+
+  <main class="wrapper mb-[--fluid(4rem,10rem)] max-w-[90rem]">
+    <div class="flex flex-col items-center gap-4 lg:flex-row" role="list">
+      {
+        developmentStacks.map(({ image, link, label }, i) => (
+          <>
+            {i > 0 && (
+              <Image class="size-10 lg:mb-5" src={import('../assets/home/cross.svg')} alt="×" />
+            )}
+            <div class="w-full rounded-xl border border-slate-300" role="listitem">
+              <p>
+                <a href={link} target="_blank">
+                  <Image class="w-full rounded-t-xl" {...image} />
+                </a>
+              </p>
+              <p class="rounded-b-xl border-t border-slate-300 bg-slate-50 px-4 py-2 text-center font-bold kerning-normal">
+                {label}
+              </p>
+            </div>
+          </>
+        ))
+      }
+    </div>
+  </main>
+</Layout>
